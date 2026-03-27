@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirComm - Touchless AI Interfaces</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=Rajdhani:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- MediaPipe Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="grid-overlay"></div>
+
+    <div class="container">
+        <header class="glass-header">
+            <div class="logo-area">
+                <span class="material-symbols-outlined logo-icon">gesture</span>
+                <div class="logo-text">
+                    <h1>AirComm <span class="badge">PRO</span></h1>
+                    <p class="subtitle">AI Touchless Interface</p>
+                </div>
+            </div>
+            <button id="stop_system_btn" class="btn danger-btn flex-btn">
+                <span class="material-symbols-outlined">power_settings_new</span> Power Off
+            </button>
+        </header>
+
+        <div class="main-grid">
+            <!-- Left panel: Camera and Status -->
+            <div class="panel camera-panel glass">
+                <div class="panel-header">
+                    <h2><span class="material-symbols-outlined">videocam</span> Vision Feed</h2>
+                    <div class="pulse-dot tracking-dot"></div>
+                </div>
+                <div class="video-wrapper">
+                    <div class="video-container" id="video_container">
+                        <div class="hud-corner top-left"></div>
+                        <div class="hud-corner top-right"></div>
+                        <div class="hud-corner bottom-left"></div>
+                        <div class="hud-corner bottom-right"></div>
+                        
+                        <video id="input_video" autoplay playsinline style="display: none;"></video>
+                        <canvas id="output_canvas"></canvas>
+                        <div class="scanner-line"></div>
+                    </div>
+                </div>
+                
+                <div class="live-status">
+                    <div class="status-item">
+                        <span class="label">Gesture</span>
+                        <span class="value" id="gesture_label">WAITING</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="status-item">
+                        <span class="label">Action</span>
+                        <span class="value action-val" id="action_label">NONE</span>
+                    </div>
+                    <div class="divider"></div>
+                    <div class="status-item">
+                        <span class="label">Mode</span>
+                        <span class="value mode-val" id="mode_label">IDLE</span>
+                    </div>
+                </div>
+
+                <div class="legend dark-glass">
+                    <div class="legend-header">
+                        <h3><span class="material-symbols-outlined">swipe</span> Command Gestures</h3>
+                        <div class="collapsible-icon"><span class="material-symbols-outlined">keyboard_arrow_down</span></div>
+                    </div>
+                    <div class="legend-content">
+                        <div class="pill-grid">
+                            <div class="pill"><span class="icon">👍</span> <span><b>Thumbs Up:</b> "Yes"</span></div>
+                            <div class="pill"><span class="icon">✊</span> <span><b>Fist:</b> "Help"</span></div>
+                            <div class="pill"><span class="icon">✋</span> <span><b>Open Palm:</b> "Stop"</span></div>
+                            <div class="pill"><span class="icon">🤙</span> <span><b>Pinky:</b> "Space"</span></div>
+                            <div class="pill"><span class="icon">👎</span> <span><b>Thumbs Down:</b> "Backspace"</span></div>
+                            <div class="pill"><span class="icon">🤟</span> <span><b>Horns:</b> "Bad"</span></div>
+                            <div class="pill"><span class="icon">📞</span> <span><b>Call Me:</b> "Hello"</span></div>
+                        </div>
+                        
+                        <div class="macro-section">
+                            <h4><span class="material-symbols-outlined">bolt</span> Macro Combinations</h4>
+                            <ul class="macro-list">
+                                <li><span>📞 + ✊</span> "Hello, could you help me?"</li>
+                                <li><span>✋ + 🤟</span> "Stop immediately, this is dangerous."</li>
+                                <li><span>👍 + ✋</span> "Yes, I agree that we should stop."</li>
+                                <li><span>🤟 + ✊</span> "Things are going badly!"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right panel: Canvas and Output -->
+            <div class="panel right-panel">
+                <div class="drawing-module glass">
+                    <div class="module-header">
+                        <h2><span class="material-symbols-outlined">draw</span> Air Canvas</h2>
+                        <div class="controls">
+                            <button id="recognize_btn" class="btn primary-btn flex-btn" title="Peace sign to trigger">
+                                <span class="material-symbols-outlined">check_circle</span> Analyze
+                            </button>
+                            <button id="clear_btn" class="btn secondary-btn flex-btn">
+                                <span class="material-symbols-outlined">ink_eraser</span> Clear
+                            </button>
+                        </div>
+                    </div>
+                    <div class="canvas-wrapper">
+                        <canvas id="drawing_canvas"></canvas>
+                        <div class="canvas-placeholder">Write text using point gesture...</div>
+                    </div>
+                    <div class="drawing-guide">
+                        <div class="guide-steps">
+                            <div class="step"><span class="icon">☝️</span> <span><b>Point</b> to Draw</span></div>
+                            <div class="step"><span class="icon">⏱️</span> <span><b>Hold 1s</b> to Auto-Analyze</span></div>
+                            <div class="step"><span class="icon">✌️</span> <span><b>Peace</b> to Submit</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="output-module glass">
+                    <div class="module-header">
+                        <h2><span class="material-symbols-outlined">forum</span> Comms Log</h2>
+                        <div class="controls">
+                            <button id="clear_text_btn" class="btn ghost-btn flex-btn"><span class="material-symbols-outlined">delete</span> Clear</button>
+                        </div>
+                    </div>
+                    
+                    <div class="terminal-container">
+                        <div class="terminal-header">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                            <span class="title">sys_output.log</span>
+                        </div>
+                        <div class="text-output-wrapper" id="log_container">
+                            <div id="live_draft" style="display: none; padding: 10px; color: var(--primary); font-family: 'Orbitron', monospace; font-size: 1.2rem;">
+                                <span class="material-symbols-outlined" style="vertical-align: middle; font-size: 1.2rem;">edit_note</span> 
+                                <span id="text_output"></span><span class="cursor-blink">_</span>
+                            </div>
+                            <!-- Items dynamically added here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden AI Section -->
+    <div id="ai_section" class="ai-modal glass" style="display: none;">
+        <div class="modal-header">
+            <div class="header-title">
+                <span class="material-symbols-outlined ai-icon">smart_toy</span>
+                <h2>AI Assistance</h2>
+            </div>
+            <button id="close_ai_btn" class="icon-btn"><span class="material-symbols-outlined">close</span></button>
+        </div>
+        <div class="modal-body">
+            <div id="ai_results_container" class="ai-results">
+                <!-- AI cards injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
