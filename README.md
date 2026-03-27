@@ -25,23 +25,23 @@ GestureSpeak  allows users to:
 
 ##  Features
 
-## **Gesture Recognition**
-## Predefined gestures for quick communication (Yes, Help, Stop)
+* **Gesture Recognition**
+* Predefined gestures for quick communication (Yes, Help, Stop)
 
-##  **Air Writing**
-##  Users can write letters in the air using finger tracking
+*  **Air Writing**
+*  Users can write letters in the air using finger tracking
 
-## **Macro Sentences**
-##  * Combination of gestures to form meaningful phrases
+* **Macro Sentences**
+*  * Combination of gestures to form meaningful phrases
 
-## **AI-Based Expansion**
-## * Converts minimal input into expressive communication (optional)
+* **AI-Based Expansion**
+* * Converts minimal input into expressive communication (optional)
 
-##  **Text-to-Speech**
-##  Converts output text into voice in real-time
+*  **Text-to-Speech**
+*  Converts output text into voice in real-time
 
-##  **Web-Based Application**
-## * No installation required, works directly in browser
+*  **Web-Based Application**
+* * No installation required, works directly in browser
 
 
 ##  Tech Stack
